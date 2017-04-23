@@ -116,14 +116,25 @@ func (db *DBFTable) GetRecord(row int) (*DBFRecord, error) {
 			}
 			r.Data[f.FieldName] = v
 		case 'F', 'N':
+			tmp := strings.TrimSpace(string(data))
 			if f.FieldDecimalCount > 0 {
-				v, err := strconv.ParseFloat(strings.TrimSpace(string(data)), 64)
+				// '-.---'
+				if "-.---" == tmp {
+					r.Data[f.FieldName] = float64(0.0)
+					continue
+				}
+				v, err := strconv.ParseFloat(tmp, 64)
 				if err != nil {
 					return nil, err
 				}
 				r.Data[f.FieldName] = v
 			} else {
-				v, err := strconv.ParseInt(strings.TrimSpace(string(data)), 10, 64)
+				// "-"
+				if "-" == tmp {
+					r.Data[f.FieldName] = int64(0)
+					continue
+				}
+				v, err := strconv.ParseInt(tmp, 10, 64)
 				if err != nil {
 					return nil, err
 				}
@@ -216,14 +227,23 @@ func (db *DBFTable) Unmarshal(holder interface{}) error {
 				}
 				tmp.Elem().Field(fi).SetString(val)
 			case 'N', 'F':
+				str := strings.TrimSpace(string(data))
 				if f.FieldDecimalCount > 0 {
-					val, err := strconv.ParseFloat(strings.TrimSpace(string(data)), 64)
+					if "-.---" == str {
+						tmp.Elem().Field(fi).SetFloat(float64(0))
+						continue
+					}
+					val, err := strconv.ParseFloat(str, 64)
 					if err != nil {
 						return err
 					}
 					tmp.Elem().Field(fi).SetFloat(val)
 				} else {
-					val, err := strconv.ParseInt(strings.TrimSpace(string(data)), 10, 64)
+					if "-" == str {
+						tmp.Elem().Field(fi).SetInt(int64(0))
+						continue
+					}
+					val, err := strconv.ParseInt(str, 10, 64)
 					if err != nil {
 						return err
 					}
