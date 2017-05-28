@@ -2,8 +2,9 @@ package godbf
 
 import (
 	"fmt"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"testing"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 func TestNewDBFTable(t *testing.T) {
@@ -37,6 +38,21 @@ type Stock struct {
 	OpenPrice     float64 `dbf:"HQJRKP"`
 	CurrentPrice  float64 `dbf:"HQZJCJ"`
 	Volumn        int64   `dbf:"HQCJSL"`
+}
+
+func BenchmarkUnmarshal(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		db, _ := NewDBFTable("example/SJSHQ.DBF", gbkDecoder)
+		var holder []*Stock
+		db.Unmarshal(&holder)
+	}
+}
+
+func BenchmarkGetAllRecords(b *testing.B) {
+	db, _ := NewDBFTable("example/SJSHQ.DBF", gbkDecoder)
+	for i := 0; i < b.N; i++ {
+		db.GetAllRecords()
+	}
 }
 
 func TestUnmarshal(t *testing.T) {
