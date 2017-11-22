@@ -128,11 +128,15 @@ func (db *DBFTable) GetRecord(row int) (*DBFRecord, error) {
 					r.Data[f.FieldName] = float64(0.0)
 					continue
 				}
-				v, err := strconv.ParseFloat(tmp, 64)
-				if err != nil {
-					return nil, err
+				if len(tmp) > 0 {
+					v, err := strconv.ParseFloat(tmp, 64)
+					if err != nil {
+						return nil, err
+					}
+					r.Data[f.FieldName] = v
+				} else {
+					r.Data[f.FieldName] = float64(0.0)
 				}
-				r.Data[f.FieldName] = v
 			} else {
 				// "-"
 				if "-" == tmp {
@@ -238,11 +242,15 @@ func (db *DBFTable) Unmarshal(holder interface{}) error {
 						tmp.Elem().Field(fi).SetFloat(float64(0))
 						continue
 					}
-					val, err := strconv.ParseFloat(str, 64)
-					if err != nil {
-						return err
+					if len(str) > 0 {
+						val, err := strconv.ParseFloat(str, 64)
+						if err != nil {
+							return err
+						}
+						tmp.Elem().Field(fi).SetFloat(val)
+					} else {
+						tmp.Elem().Field(fi).SetFloat(float64(0))
 					}
-					tmp.Elem().Field(fi).SetFloat(val)
 				} else {
 					if "-" == str {
 						tmp.Elem().Field(fi).SetInt(int64(0))
