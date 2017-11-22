@@ -122,6 +122,7 @@ func (db *DBFTable) GetRecord(row int) (*DBFRecord, error) {
 			r.Data[f.FieldName] = v
 		case 'F', 'N':
 			tmp := strings.TrimSpace(string(data))
+			tmp = strTrimZero(tmp)
 			if f.FieldDecimalCount > 0 {
 				// '-.---'
 				if "-.---" == tmp {
@@ -241,6 +242,7 @@ func (db *DBFTable) Unmarshal(holder interface{}) error {
 				tmp.Elem().Field(fi).SetString(val)
 			case 'N', 'F':
 				str := strings.TrimSpace(string(data))
+				str = strTrimZero(str)
 				if f.FieldDecimalCount > 0 {
 					if "-.---" == str {
 						tmp.Elem().Field(fi).SetFloat(float64(0))
@@ -274,6 +276,17 @@ func (db *DBFTable) Unmarshal(holder interface{}) error {
 		}
 	}
 	return nil
+}
+
+func strTrimZero(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	b := []byte(s)
+	for len(b) > 0 && b[len(b)-1] == 0 {
+		b = b[0 : len(b)-1]
+	}
+	return string(b)
 }
 
 func parseFields(body []byte, numberOfFields int, decoder Decoder) ([]*DBFField, error) {
