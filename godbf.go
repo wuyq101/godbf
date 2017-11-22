@@ -143,11 +143,15 @@ func (db *DBFTable) GetRecord(row int) (*DBFRecord, error) {
 					r.Data[f.FieldName] = int64(0)
 					continue
 				}
-				v, err := strconv.ParseInt(tmp, 10, 64)
-				if err != nil {
-					return nil, err
+				if len(tmp) > 0 {
+					v, err := strconv.ParseInt(tmp, 10, 64)
+					if err != nil {
+						return nil, err
+					}
+					r.Data[f.FieldName] = v
+				} else {
+					r.Data[f.FieldName] = int64(0)
 				}
-				r.Data[f.FieldName] = v
 			}
 		}
 	}
@@ -256,11 +260,15 @@ func (db *DBFTable) Unmarshal(holder interface{}) error {
 						tmp.Elem().Field(fi).SetInt(int64(0))
 						continue
 					}
-					val, err := strconv.ParseInt(str, 10, 64)
-					if err != nil {
-						return err
+					if len(str) > 0 {
+						val, err := strconv.ParseInt(str, 10, 64)
+						if err != nil {
+							return err
+						}
+						tmp.Elem().Field(fi).SetInt(val)
+					} else {
+						tmp.Elem().Field(fi).SetInt(0)
 					}
-					tmp.Elem().Field(fi).SetInt(val)
 				}
 			}
 		}
