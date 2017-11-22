@@ -54,12 +54,17 @@ type DBFTable struct {
 // Decoder for transform text encoding
 type Decoder func([]byte) ([]byte, error)
 
-// NewDBFTable will open the file with user provided decoder, and return an dbf table
+// NewDBFTable will open the file with user provided decoder, and return a dbf table
 func NewDBFTable(file string, decoder Decoder) (*DBFTable, error) {
 	body, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
+	return NewDBFTableByContent(body, decoder)
+}
+
+// NewDBFTableByContent dbf content to create a dbf table
+func NewDBFTableByContent(body []byte, decoder Decoder) (*DBFTable, error) {
 	db := &DBFTable{}
 	db.decoder = decoder
 	db.body = body
