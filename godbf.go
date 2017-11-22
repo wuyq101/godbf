@@ -119,7 +119,10 @@ func (db *DBFTable) GetRecord(row int) (*DBFRecord, error) {
 			if err != nil {
 				return nil, err
 			}
-			r.Data[f.FieldName] = v
+			v = strTrimZero(v)
+			if len(v) > 0 {
+				r.Data[f.FieldName] = v
+			}
 		case 'F', 'N':
 			tmp := strings.TrimSpace(string(data))
 			tmp = strTrimZero(tmp)
@@ -239,7 +242,10 @@ func (db *DBFTable) Unmarshal(holder interface{}) error {
 				if err != nil {
 					return err
 				}
-				tmp.Elem().Field(fi).SetString(val)
+				val = strTrimZero(val)
+				if len(val) > 0 {
+					tmp.Elem().Field(fi).SetString(val)
+				}
 			case 'N', 'F':
 				str := strings.TrimSpace(string(data))
 				str = strTrimZero(str)
